@@ -1,0 +1,1444 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Helen's Project IT Documentation — setup, tools and policies for all staff."
+    />
+    <title>Helen's Project — IT Documentation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,800&family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --deep-purple: #2f2840;
+        --medium-purple: #8d74b2;
+        --lavender: #cdbfe2;
+        --off-white: #faf8fc;
+        --light-bg: #f0ebf8;
+        --border: #e6dff0;
+        --muted-text: #6b5f7a;
+        --sidebar-width: 260px;
+        --topbar-height: 56px;
+        --code-bg: #1e1e2e;
+        --code-text: #cdd6f4;
+        --font-heading: 'Fraunces', serif;
+        --font-body: 'Inter', sans-serif;
+        --white: #ffffff;
+        --doc-text: #3a3347;
+      }
+
+      html,
+      body {
+        height: 100%;
+        font-family: var(--font-body);
+        background: var(--off-white);
+        color: var(--deep-purple);
+      }
+
+      /* ─── TOP BAR ──────────────────────────────────────────────── */
+      #topbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: var(--topbar-height);
+        background: var(--white);
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 0 16px;
+        z-index: 200;
+      }
+      #hamburger {
+        display: none;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 6px;
+        border-radius: 6px;
+        color: var(--deep-purple);
+      }
+      #hamburger:hover {
+        background: var(--light-bg);
+      }
+      #hamburger svg {
+        display: block;
+      }
+      #search-wrap {
+        flex: 1;
+        max-width: 480px;
+        position: relative;
+      }
+      #search-input {
+        width: 100%;
+        padding: 8px 36px 8px 14px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font-size: 14px;
+        background: var(--off-white);
+        color: var(--deep-purple);
+        outline: none;
+        transition: border-color 0.15s;
+      }
+      #search-input:focus {
+        border-color: var(--medium-purple);
+        background: var(--white);
+      }
+      #search-input::placeholder {
+        color: var(--muted-text);
+      }
+      #search-clear {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--muted-text);
+        display: none;
+        font-size: 16px;
+        line-height: 1;
+        padding: 2px;
+      }
+      #search-clear:hover {
+        color: var(--deep-purple);
+      }
+      #topbar-title {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--muted-text);
+        white-space: nowrap;
+        margin-left: auto;
+      }
+
+      /* ─── SEARCH RESULTS PANEL ─────────────────────────────────── */
+      #search-results {
+        display: none;
+        position: fixed;
+        top: var(--topbar-height);
+        left: var(--sidebar-width);
+        right: 0;
+        background: var(--white);
+        border-bottom: 1px solid var(--border);
+        padding: 12px 24px;
+        z-index: 150;
+        max-height: 320px;
+        overflow-y: auto;
+      }
+      #search-results.active {
+        display: block;
+      }
+      .search-result-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 10px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 0.1s;
+      }
+      .search-result-item:hover,
+      .search-result-item:focus {
+        background: var(--light-bg);
+        outline: 2px solid var(--medium-purple);
+        outline-offset: -2px;
+      }
+      .search-result-badge {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--medium-purple);
+        background: var(--light-bg);
+        padding: 2px 7px;
+        border-radius: 4px;
+        white-space: nowrap;
+      }
+      .search-result-title {
+        font-size: 14px;
+        color: var(--deep-purple);
+      }
+      .search-no-results {
+        font-size: 14px;
+        color: var(--muted-text);
+        padding: 8px 10px;
+      }
+
+      /* ─── LAYOUT ───────────────────────────────────────────────── */
+      #layout {
+        display: flex;
+        height: 100vh;
+        padding-top: var(--topbar-height);
+      }
+
+      /* ─── SIDEBAR ──────────────────────────────────────────────── */
+      #sidebar {
+        width: var(--sidebar-width);
+        flex-shrink: 0;
+        background: var(--white);
+        border-right: 1px solid var(--border);
+        overflow-y: auto;
+        height: 100%;
+        position: fixed;
+        top: var(--topbar-height);
+        left: 0;
+        bottom: 0;
+        transition: transform 0.25s ease;
+        z-index: 100;
+      }
+      .sidebar-logo {
+        padding: 20px 16px 16px;
+        border-bottom: 1px solid var(--border);
+      }
+      .sidebar-logo-title {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--deep-purple);
+        line-height: 1.2;
+      }
+      .sidebar-logo-sub {
+        font-size: 11px;
+        color: var(--muted-text);
+        margin-top: 3px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .sidebar-group {
+        border-bottom: 1px solid var(--border);
+      }
+      .sidebar-group-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 11px 14px 11px 16px;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--muted-text);
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        user-select: none;
+        transition: background 0.1s;
+      }
+      .sidebar-group-header:hover {
+        background: var(--light-bg);
+      }
+      .sidebar-group-header .emoji {
+        font-size: 14px;
+        margin-right: 7px;
+      }
+      .sidebar-group-chevron {
+        transition: transform 0.2s;
+        font-size: 10px;
+        color: var(--lavender);
+      }
+      .sidebar-group.open .sidebar-group-chevron {
+        transform: rotate(90deg);
+      }
+      .sidebar-group-items {
+        display: none;
+      }
+      .sidebar-group.open .sidebar-group-items {
+        display: block;
+      }
+      .sidebar-item {
+        display: block;
+        width: 100%;
+        text-align: left;
+        background: none;
+        border: none;
+        padding: 8px 16px 8px 36px;
+        font-size: 13px;
+        color: var(--muted-text);
+        cursor: pointer;
+        transition:
+          background 0.1s,
+          color 0.1s,
+          border-color 0.1s;
+        border-left: 2px solid transparent;
+        white-space: normal;
+        word-break: break-word;
+        line-height: 1.4;
+      }
+      .sidebar-item:hover {
+        background: var(--light-bg);
+        color: var(--deep-purple);
+      }
+      .sidebar-item.active {
+        background: var(--light-bg);
+        color: var(--medium-purple);
+        border-left-color: var(--medium-purple);
+        font-weight: 600;
+      }
+      .sidebar-item.hidden {
+        display: none;
+      }
+
+      /* ─── MAIN CONTENT ─────────────────────────────────────────── */
+      #main {
+        flex: 1;
+        margin-left: var(--sidebar-width);
+        overflow-y: auto;
+        height: 100%;
+        padding: 0;
+      }
+      #content-area {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 40px 48px 80px;
+      }
+
+      /* ─── WELCOME SCREEN ───────────────────────────────────────── */
+      #welcome {
+        display: block;
+      }
+      .welcome-header {
+        margin-bottom: 36px;
+      }
+      .welcome-header h1 {
+        font-size: 32px;
+        font-weight: 800;
+        font-family: var(--font-heading);
+        color: var(--deep-purple);
+        line-height: 1.2;
+      }
+      .welcome-header p {
+        font-size: 16px;
+        color: var(--muted-text);
+        margin-top: 10px;
+      }
+      .welcome-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 16px;
+      }
+      .welcome-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 20px;
+        cursor: pointer;
+        transition:
+          box-shadow 0.15s,
+          border-color 0.15s;
+        text-decoration: none;
+        display: block;
+      }
+      .welcome-card:hover {
+        box-shadow: 0 4px 16px rgba(47, 40, 64, 0.08);
+        border-color: var(--lavender);
+      }
+      .welcome-card-emoji {
+        font-size: 24px;
+        margin-bottom: 10px;
+      }
+      .welcome-card-name {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--deep-purple);
+      }
+      .welcome-card-count {
+        font-size: 12px;
+        color: var(--muted-text);
+        margin-top: 4px;
+      }
+
+      /* ─── DOC RENDERER ─────────────────────────────────────────── */
+      #doc-view {
+        display: none;
+      }
+      .doc-content {
+        line-height: 1.7;
+        font-size: 15px;
+        color: var(--doc-text);
+      }
+      .doc-content h1 {
+        font-size: 28px;
+        font-weight: 800;
+        font-family: var(--font-heading);
+        color: var(--deep-purple);
+        margin-bottom: 8px;
+        line-height: 1.2;
+      }
+      .doc-content h2 {
+        font-size: 20px;
+        font-weight: 700;
+        font-family: var(--font-heading);
+        color: var(--deep-purple);
+        margin-top: 36px;
+        margin-bottom: 12px;
+        padding-bottom: 6px;
+        border-bottom: 1px solid var(--border);
+      }
+      .doc-content h3 {
+        font-size: 16px;
+        font-weight: 700;
+        font-family: var(--font-heading);
+        color: var(--deep-purple);
+        margin-top: 24px;
+        margin-bottom: 8px;
+      }
+      .doc-content p {
+        margin-bottom: 14px;
+      }
+      .doc-content p:last-child {
+        margin-bottom: 0;
+      }
+      .doc-content strong {
+        font-weight: 700;
+        color: var(--deep-purple);
+      }
+      .doc-content ul,
+      .doc-content ol {
+        margin: 10px 0 14px 20px;
+      }
+      .doc-content li {
+        margin-bottom: 5px;
+      }
+      /* Task-list items: "- [ ] do the thing" */
+      .doc-content li.task {
+        list-style: none;
+        margin-left: -20px;
+        padding-left: 28px;
+        position: relative;
+        margin-bottom: 9px;
+      }
+      .doc-content li.task::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0.25em;
+        width: 15px;
+        height: 15px;
+        border: 1.5px solid var(--medium-purple);
+        border-radius: 4px;
+        background: var(--white);
+      }
+      .doc-content hr {
+        border: none;
+        border-top: 1px solid var(--border);
+        margin: 28px 0;
+      }
+      .doc-content code {
+        background: var(--light-bg);
+        color: var(--medium-purple);
+        padding: 1px 6px;
+        border-radius: 4px;
+        font-size: 13px;
+        font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      }
+      .doc-content pre {
+        background: var(--code-bg);
+        color: var(--code-text);
+        border-radius: 10px;
+        padding: 18px 20px;
+        margin: 16px 0;
+        overflow-x: auto;
+        font-size: 13px;
+        line-height: 1.6;
+      }
+      .doc-content pre code {
+        background: none;
+        color: inherit;
+        padding: 0;
+        font-size: inherit;
+        border-radius: 0;
+      }
+      .doc-content table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 16px 0;
+        font-size: 14px;
+      }
+      .doc-content th {
+        background: var(--light-bg);
+        color: var(--deep-purple);
+        font-weight: 700;
+        text-align: left;
+        padding: 10px 14px;
+        border: 1px solid var(--border);
+      }
+      .doc-content td {
+        padding: 9px 14px;
+        border: 1px solid var(--border);
+        vertical-align: top;
+      }
+      .doc-content tr:nth-child(even) td {
+        background: var(--off-white);
+      }
+      .doc-content tr:hover td {
+        background: var(--light-bg);
+      }
+      .doc-breadcrumb {
+        font-size: 12px;
+        color: var(--muted-text);
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .doc-breadcrumb .bc-home {
+        cursor: pointer;
+      }
+      .doc-breadcrumb .bc-home:hover,
+      .doc-breadcrumb .bc-home:focus {
+        color: var(--medium-purple);
+        text-decoration: underline;
+        outline: none;
+      }
+      .doc-breadcrumb .bc-sep {
+        color: var(--lavender);
+      }
+      .doc-breadcrumb .bc-group {
+        color: var(--muted-text);
+      }
+      .doc-breadcrumb .bc-current {
+        color: var(--deep-purple);
+        font-weight: 600;
+      }
+      .doc-content a.doc-link {
+        color: var(--medium-purple);
+        text-decoration: underline;
+      }
+      .doc-content a.doc-link:hover {
+        color: var(--deep-purple);
+      }
+
+      /* ─── OVERLAY (mobile) ─────────────────────────────────────── */
+      #sidebar-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(47, 40, 64, 0.35);
+        z-index: 99;
+      }
+
+      /* ─── MOBILE ───────────────────────────────────────────────── */
+      @media (max-width: 768px) {
+        #hamburger {
+          display: flex;
+        }
+        #sidebar {
+          transform: translateX(-100%);
+        }
+        #sidebar.open {
+          transform: translateX(0);
+        }
+        #sidebar-overlay.open {
+          display: block;
+        }
+        #search-results {
+          left: 0;
+        }
+        #main {
+          margin-left: 0;
+        }
+        #content-area {
+          padding: 24px 20px 60px;
+        }
+        #topbar-title {
+          display: none;
+        }
+        .welcome-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* ─── SCROLLBAR ────────────────────────────────────────────── */
+      #sidebar::-webkit-scrollbar {
+        width: 4px;
+      }
+      #sidebar::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      #sidebar::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 4px;
+      }
+      #main::-webkit-scrollbar {
+        width: 6px;
+      }
+      #main::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      #main::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- TOP BAR -->
+    <header id="topbar">
+      <button id="hamburger" aria-label="Toggle sidebar">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <rect y="3" width="20" height="2" rx="1" fill="currentColor" />
+          <rect y="9" width="20" height="2" rx="1" fill="currentColor" />
+          <rect y="15" width="20" height="2" rx="1" fill="currentColor" />
+        </svg>
+      </button>
+      <div id="search-wrap">
+        <input
+          id="search-input"
+          type="text"
+          placeholder="Search documentation..."
+          autocomplete="off"
+          spellcheck="false"
+          role="combobox"
+          aria-autocomplete="list"
+          aria-expanded="false"
+          aria-controls="search-results"
+          aria-haspopup="listbox"
+        />
+        <button id="search-clear" aria-label="Clear search">&#x2715;</button>
+      </div>
+      <span id="topbar-title">Helen's Project IT Documentation</span>
+      <a href="https://staff.helensproject.org" style="font-size:0.75rem;color:var(--muted-text);text-decoration:none;margin-left:auto;padding-right:1rem;">Staff Portal →</a>
+    </header>
+
+    <!-- SEARCH RESULTS -->
+    <div id="search-results" role="listbox" aria-label="Search results"></div>
+
+    <!-- SIDEBAR OVERLAY (mobile) -->
+    <div id="sidebar-overlay"></div>
+
+    <!-- LAYOUT -->
+    <div id="layout">
+      <!-- SIDEBAR -->
+      <nav id="sidebar">
+        <div class="sidebar-logo">
+          <div class="sidebar-logo-title">Helen's Project</div>
+          <div class="sidebar-logo-sub">IT Documentation</div>
+        </div>
+        <div id="sidebar-nav"></div>
+      </nav>
+
+      <!-- MAIN -->
+      <main id="main">
+        <div id="content-area">
+          <!-- WELCOME -->
+          <div id="welcome">
+            <div class="welcome-header">
+              <h1>Helen's Project IT Documentation</h1>
+              <p>Getting set up, getting help, and the rules for the tools you use</p>
+            </div>
+            <div class="welcome-grid" id="welcome-grid"></div>
+          </div>
+          <!-- DOC VIEW -->
+          <div id="doc-view">
+            <div class="doc-breadcrumb" id="doc-breadcrumb"></div>
+            <div class="doc-content" id="doc-content"></div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      // ─── DOC DATA ────────────────────────────────────────────────
+      const DOCS = [
+        {
+          id: 'staff-onboarding',
+          title: 'Day 1 — IT Setup',
+          group: 'Everyone',
+          content: `# Day 1 — IT Setup
+**Helen's Project — IT Department** · **Audience:** Everyone
+
+Your accounts already exist. IT creates your Google Workspace email and your Slack access before your first day, and emails the login details to your personal address. You don't need to request anything.
+
+> **This page is IT setup only.** HR runs the rest of onboarding — paperwork, orientation modules and your live onboarding week — through Google Classroom.
+
+---
+
+## Do these six things
+
+- [ ] **Log in to your work email** using the address and temporary password IT emailed you
+- [ ] **Change your password** → [myaccount.google.com/security](https://myaccount.google.com/security)
+- [ ] **Turn on 2-Step Verification** — same page. Required on every account.
+- [ ] **Join Slack** — open the invite in your work email → [helensproject.slack.com](https://helensproject.slack.com) → **Sign in with Google**
+- [ ] **Read** the **Email & Slack Rules** page on this site
+- [ ] **Submit a test IT ticket** — type \`/submit\` in any Slack channel → IT Ticket
+
+### Clinical staff — three more
+
+- [ ] Accept the SimplePractice invitation IT sends to your work email
+- [ ] Read the **SimplePractice** page on this site
+- [ ] Run [diagnostics.simplepractice.com](https://diagnostics.simplepractice.com) — if any check fails, submit an IT ticket with a screenshot
+
+---
+
+## Also worth knowing
+
+**The staff portal** — [staff.helensproject.org](https://staff.helensproject.org) is where you'll find your own profile, payment records and license records. Sign in with your work Google account.
+
+**Asana** — non-clinical staff work out of Asana day to day. If you don't have access by the end of your first week, submit an IT ticket.
+
+**Slack channels** — you're added to your department's channels automatically. If one you'd expect is missing, submit an IT ticket with the channel name.
+
+**When you leave** — IT suspends your accounts on your last day. Anything you need to keep should be handed over before then.
+
+---
+
+## Questions?
+
+DM **Justine Jurel Valenzuela** (IT Admin) on Slack, or submit an IT ticket.`,
+        },
+        {
+          id: 'staff-ticketing',
+          title: 'Getting Help',
+          group: 'Everyone',
+          content: `# Getting Help
+**Helen's Project — IT Department** · **Audience:** Everyone
+
+## Don't raise a ticket for these — contact someone directly
+
+| Situation | Do this instead |
+|---|---|
+| Data breach or security incident | DM IT immediately on Slack |
+| Patient safety, legal, or a live emergency | Phone or DM leadership directly |
+| Suspected unauthorized access to client records | DM IT immediately |
+| Locked out by 2-Step Verification | DM IT directly — you can't raise a ticket without Slack |
+| Hardware or network problems | Your on-site point of contact — outside IT's virtual scope |
+
+Everything else is a ticket.
+
+---
+
+## How to raise one
+
+1. Type \`/submit\` in any Slack channel or DM and press **Enter**
+2. Choose the ticket type
+3. Fill in the form — category, a one-line subject, the full description, and a priority
+4. Click **Submit**
+
+An Asana task is created and the right team is notified. IT and Marketing tickets also send you a Slack DM confirmation; Leadership tickets are worked directly in Asana, so there's no DM. You don't need to chase unless it's **Urgent** and you've heard nothing in 2 hours.
+
+## Which type?
+
+| Type | Use it for |
+|---|---|
+| **IT** | Accounts, email, Slack, the website, automations, internal systems |
+| **Marketing** | Graphics, content, campaigns, design |
+| **Leadership** | Escalations, approvals, budget, exec decisions |
+
+## Priority
+
+| Priority | Use when |
+|---|---|
+| **Low** | It can wait a few days |
+| **Medium** | It's affecting your work but you have a workaround |
+| **High** | It's blocking your work — needs attention within 24 hours |
+| **Urgent** | Complete blocker, or it affects several people or client data |
+
+---
+
+## Writing one people can act on
+
+Be specific. Instead of:
+> "Slack isn't working"
+
+Write:
+> "I can't sign in to Slack. Clicking 'Sign in with Google' sends me back to the login page. It started this morning. I've tried a different browser and cleared my cache. My work email signs in to Gmail fine."
+
+For **Marketing**, include the deadline, where the asset will be used, and who it's for. For **Leadership**, say what you need, why it matters, your recommendation, and by when.`,
+        },
+        {
+          id: 'staff-simplepractice',
+          title: 'SimplePractice',
+          group: 'Clinical Only',
+          content: `# SimplePractice
+**Helen's Project — IT Department** · **Audience:** Clinical staff only · **HIPAA / Policy #5.2**
+
+IT sends your invitation to your work email during onboarding. Accept it and set your password before your first session.
+
+---
+
+## The rules
+
+**You must:**
+- Open only the records of clients on your active caseload
+- Log out when you're done — especially on a shared or clinic computer
+- Keep your login private — never share your username or password
+- Use only Helen's Project–approved devices
+- Report any suspected unauthorized access to IT immediately
+
+**You must not:**
+- Screenshot client records, session notes, or any Protected Health Information (PHI)
+- Open the records of clients not assigned to you
+- Store client information anywhere outside SimplePractice — documents, email, messaging apps
+- Share your login with anyone, including colleagues
+
+SimplePractice holds PHI. Unauthorized access or sharing is a HIPAA violation and a breach of client trust. **IT monitors access logs.**
+
+---
+
+## Before your first telehealth session
+
+Run [diagnostics.simplepractice.com](https://diagnostics.simplepractice.com). Allow camera and microphone access when your browser asks — it checks your browser, camera, microphone, speaker and connection, and takes about 60 seconds. Green passes, yellow warns, red fails.
+
+Leave at least **5 minutes** before a session so there's time to fix anything. Run it again any time you hit video or audio trouble.
+
+**If something fails:**
+
+| Failed check | Try this |
+|---|---|
+| Browser | Switch to Google Chrome or Microsoft Edge |
+| Camera / microphone | Close any other app using it, then check browser permissions |
+| Internet speed | Move closer to the router, or plug in |
+| Network quality | Close streaming and large downloads |
+
+Still failing? Submit an IT ticket with a screenshot of the results.`,
+        },
+        {
+          id: 'staff-communication-policy',
+          title: 'Email & Slack Rules',
+          group: 'Everyone',
+          content: `# Email & Slack Rules
+**Helen's Project — IT Department** · **Audience:** Everyone · **Policy 4.4 / 4.4.1**
+
+Setting the accounts up is covered on **Day 1 — IT Setup**. This page is the rules.
+
+---
+
+## Email
+
+**You must:**
+- Use your \`@hlproject.org\` address for **all** Helen's Project business
+- Keep 2-Step Verification switched on at all times
+- Keep your password private
+
+**You must not:**
+- Use personal email (Gmail, Yahoo, iCloud) for anything client-related, clinical or internal
+- Forward work email to a personal account
+
+## Slack
+
+**You must:**
+- Use Slack as your main real-time channel for internal work
+- Send IT, Marketing and Leadership requests through \`/submit\` — not a DM to whoever you happen to know
+- Keep each channel on topic
+
+**You must not:**
+- Use iMessage, WhatsApp or a personal Slack for work
+- Put Protected Health Information (PHI) in a Slack message — ever
+- Put confidential client information in a public or general channel
+
+---
+
+## Why
+
+Policy 4.4 / 4.4.1 requires internal communication to be traceable and held inside Helen's Project systems. Personal email and messaging apps are not HIPAA-compliant for organizational use.
+
+---
+
+## The automation bot
+
+**HL Project Automations** sends messages with buttons.
+
+- Click once — buttons are logged and disable after first use
+- Fill the form in full, then submit
+- If a button doesn't respond, wait 5 seconds and try once more
+- If it still doesn't respond, raise an IT ticket rather than clicking repeatedly
+
+---
+
+## When something's wrong
+
+| Problem | What to do |
+|---|---|
+| No welcome email | Check your personal spam. Still nothing → IT ticket. |
+| Temporary password rejected | IT ticket — IT will reset it |
+| Forgot your password | accounts.google.com → Forgot password, or ask IT |
+| Locked out by 2-Step Verification | DM IT directly — you can't raise a ticket without Slack |
+| No Slack invite | Check your work email spam. Still nothing → IT ticket. |
+| Can't sign in to Slack | Check you're using \`@hlproject.org\`, not a personal Google account |
+| Missing a channel you'd expect | IT ticket with the channel name and your team |`,
+        },
+      ];
+
+      // ─── SIDEBAR STRUCTURE ───────────────────────────────────────
+      const GROUPS = [
+        { name: 'Everyone', emoji: '🟢' },
+        { name: 'Clinical Only', emoji: '🩺' },
+      ];
+
+      // ─── STATE ───────────────────────────────────────────────────
+      let currentDocId = null;
+      let searchQuery = '';
+
+      // ─── MARKDOWN RENDERER ───────────────────────────────────────
+      function renderMarkdown(md) {
+        // Escape HTML in content (but we'll selectively unescape for rendering)
+        function escHtml(s) {
+          return s
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+        }
+
+        // Split into lines for processing
+        const lines = md.split('\n');
+        let html = '';
+        let i = 0;
+
+        while (i < lines.length) {
+          const line = lines[i];
+
+          // Code block
+          if (line.trimStart().startsWith('```')) {
+            let codeLines = [];
+            i++;
+            while (
+              i < lines.length &&
+              !lines[i].trimStart().startsWith('```')
+            ) {
+              codeLines.push(escHtml(lines[i]));
+              i++;
+            }
+            html += '<pre><code>' + codeLines.join('\n') + '</code></pre>\n';
+            i++;
+            continue;
+          }
+
+          // Table
+          if (
+            line.includes('|') &&
+            i + 1 < lines.length &&
+            lines[i + 1].includes('|') &&
+            lines[i + 1].includes('-')
+          ) {
+            // Parse header
+            const headerCells = line
+              .split('|')
+              .filter((c, idx, arr) => idx > 0 && idx < arr.length - 1)
+              .map((c) => inlineRender(c.trim()));
+            // Skip separator
+            i += 2;
+            let rows = [];
+            while (i < lines.length && lines[i].includes('|')) {
+              const cells = lines[i]
+                .split('|')
+                .filter((c, idx, arr) => idx > 0 && idx < arr.length - 1)
+                .map((c) => inlineRender(c.trim()));
+              rows.push(cells);
+              i++;
+            }
+            html +=
+              '<table><thead><tr>' +
+              headerCells.map((c) => '<th>' + c + '</th>').join('') +
+              '</tr></thead><tbody>';
+            rows.forEach((row) => {
+              html +=
+                '<tr>' +
+                row.map((c) => '<td>' + c + '</td>').join('') +
+                '</tr>';
+            });
+            html += '</tbody></table>\n';
+            continue;
+          }
+
+          // Headings
+          const h3 = line.match(/^### (.+)/);
+          const h2 = line.match(/^## (.+)/);
+          const h1 = line.match(/^# (.+)/);
+          if (h1) {
+            html += '<h1>' + inlineRender(h1[1]) + '</h1>\n';
+            i++;
+            continue;
+          }
+          if (h2) {
+            html += '<h2>' + inlineRender(h2[1]) + '</h2>\n';
+            i++;
+            continue;
+          }
+          if (h3) {
+            html += '<h3>' + inlineRender(h3[1]) + '</h3>\n';
+            i++;
+            continue;
+          }
+
+          // HR
+          if (/^---+$/.test(line.trim())) {
+            html += '<hr>\n';
+            i++;
+            continue;
+          }
+
+          // Unordered list
+          if (/^(\s*)[-*] /.test(line)) {
+            html += '<ul>';
+            while (i < lines.length && /^(\s*)[-*] /.test(lines[i])) {
+              const item = lines[i].replace(/^\s*[-*] /, '');
+              const task = item.match(/^\[[ xX]\] (.*)$/);
+              html += task
+                ? '<li class="task">' + inlineRender(task[1]) + '</li>'
+                : '<li>' + inlineRender(item) + '</li>';
+              i++;
+            }
+            html += '</ul>\n';
+            continue;
+          }
+
+          // Ordered list
+          if (/^\d+\. /.test(line)) {
+            html += '<ol>';
+            while (i < lines.length && /^\d+\. /.test(lines[i])) {
+              html +=
+                '<li>' +
+                inlineRender(lines[i].replace(/^\d+\. /, '')) +
+                '</li>';
+              i++;
+            }
+            html += '</ol>\n';
+            continue;
+          }
+
+          // Blockquote
+          if (line.startsWith('> ')) {
+            html +=
+              '<blockquote style="border-left:3px solid var(--lavender);padding:8px 16px;margin:12px 0;color:var(--muted-text);background:var(--light-bg);border-radius:0 6px 6px 0">' +
+              inlineRender(line.slice(2)) +
+              '</blockquote>\n';
+            i++;
+            continue;
+          }
+
+          // Empty line = paragraph break
+          if (line.trim() === '') {
+            i++;
+            continue;
+          }
+
+          // Paragraph
+          let paraLines = [];
+          while (
+            i < lines.length &&
+            lines[i].trim() !== '' &&
+            !lines[i].startsWith('#') &&
+            !lines[i].startsWith('```') &&
+            !lines[i].startsWith('>') &&
+            !/^(\s*)[-*] /.test(lines[i]) &&
+            !/^\d+\. /.test(lines[i]) &&
+            !/^---+$/.test(lines[i].trim()) &&
+            !lines[i].includes('|')
+          ) {
+            paraLines.push(lines[i]);
+            i++;
+          }
+          if (paraLines.length) {
+            html += '<p>' + inlineRender(paraLines.join(' ')) + '</p>\n';
+          } else {
+            i++; // no rule matched — advance past unmatched line to prevent infinite loop
+          }
+        }
+
+        return html;
+      }
+
+      function inlineRender(text) {
+        // Escape HTML first
+        text = text
+          .replace(/&(?![a-z]+;)/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;');
+        // Bold
+        text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+        // Inline code
+        text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
+        // Images (must come before links)
+        text = text.replace(
+          /!\[([^\]]*)\]\(([^)]+)\)/g,
+          '<img src="$2" alt="$1" style="max-width:100%;border-radius:8px;margin:16px 0;display:block;border:1px solid #e2d8f0;">',
+        );
+        // Links
+        text = text.replace(
+          /\[([^\]]+)\]\(([^)]+)\)/g,
+          '<a href="$2" target="_blank" rel="noopener noreferrer" class="doc-link">$1</a>',
+        );
+        return text;
+      }
+
+      // ─── BUILD SIDEBAR ───────────────────────────────────────────
+      function buildSidebar() {
+        const nav = document.getElementById('sidebar-nav');
+        nav.innerHTML = '';
+        GROUPS.forEach((group) => {
+          const docs = DOCS.filter((d) => d.group === group.name);
+          const groupEl = document.createElement('div');
+          groupEl.className = 'sidebar-group';
+          groupEl.dataset.group = group.name;
+
+          const header = document.createElement('div');
+          header.className = 'sidebar-group-header';
+          header.setAttribute('role', 'button');
+          header.setAttribute('aria-expanded', 'false');
+          header.setAttribute('tabindex', '0');
+          header.innerHTML = `<span><span class="emoji" aria-hidden="true">${group.emoji}</span>${group.name}</span><span class="sidebar-group-chevron" aria-hidden="true">▶</span>`;
+          header.addEventListener('click', () => {
+            const isOpen = groupEl.classList.toggle('open');
+            header.setAttribute('aria-expanded', String(isOpen));
+          });
+          header.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              header.click();
+            }
+          });
+
+          const items = document.createElement('div');
+          items.className = 'sidebar-group-items';
+
+          docs.forEach((doc) => {
+            const btn = document.createElement('button');
+            btn.className = 'sidebar-item';
+            btn.textContent = doc.title;
+            btn.dataset.docId = doc.id;
+            btn.addEventListener('click', () => {
+              loadDoc(doc.id);
+              closeMobileSidebar();
+            });
+            items.appendChild(btn);
+          });
+
+          groupEl.appendChild(header);
+          groupEl.appendChild(items);
+          nav.appendChild(groupEl);
+        });
+      }
+
+      // ─── BUILD WELCOME GRID ──────────────────────────────────────
+      function buildWelcome() {
+        const grid = document.getElementById('welcome-grid');
+        grid.innerHTML = '';
+        GROUPS.forEach((group) => {
+          const count = DOCS.filter((d) => d.group === group.name).length;
+          const card = document.createElement('a');
+          card.className = 'welcome-card';
+          card.href = '#';
+          card.innerHTML = `<div class="welcome-card-emoji">${group.emoji}</div><div class="welcome-card-name">${group.name}</div><div class="welcome-card-count">${count} doc${count !== 1 ? 's' : ''}</div>`;
+          card.addEventListener('click', (e) => {
+            e.preventDefault();
+            // Load first doc in group
+            const firstDoc = DOCS.find((d) => d.group === group.name);
+            if (firstDoc) loadDoc(firstDoc.id);
+            // Open group in sidebar and scroll to it (sidebar is position:fixed — use scrollTop, not scrollIntoView)
+            const sidebarEl = document.getElementById('sidebar');
+            const groupEl = document.querySelector(
+              `.sidebar-group[data-group="${group.name}"]`,
+            );
+            if (groupEl) {
+              groupEl.classList.add('open');
+              setTimeout(() => {
+                sidebarEl.scrollTop = groupEl.offsetTop;
+              }, 50);
+            }
+            // On mobile: open the sidebar so user sees it
+            if (window.innerWidth <= 768) {
+              sidebarEl.classList.add('open');
+              document.getElementById('sidebar-overlay').classList.add('open');
+            }
+          });
+          grid.appendChild(card);
+        });
+      }
+
+      // ─── LOAD DOC ────────────────────────────────────────────────
+      function loadDoc(id) {
+        const doc = DOCS.find((d) => d.id === id);
+        if (!doc) return;
+
+        currentDocId = id;
+
+        // Hide welcome, show doc
+        document.getElementById('welcome').style.display = 'none';
+        document.getElementById('doc-view').style.display = 'block';
+
+        // Breadcrumb
+        const bc = document.getElementById('doc-breadcrumb');
+        bc.innerHTML = `<span class="bc-home" tabindex="0" role="button" aria-label="Home">Home</span> <span class="bc-sep" aria-hidden="true">›</span> <span class="bc-group">${escResultHtml(doc.group)}</span> <span class="bc-sep" aria-hidden="true">›</span> <span class="bc-current">${escResultHtml(doc.title)}</span>`;
+        const bcHome = bc.querySelector('.bc-home');
+        bcHome.addEventListener('click', showWelcome);
+        bcHome.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); showWelcome(); }
+        });
+
+        // Render content
+        document.getElementById('doc-content').innerHTML = renderMarkdown(
+          doc.content,
+        );
+
+        // Update sidebar active state
+        document.querySelectorAll('.sidebar-item').forEach((btn) => {
+          btn.classList.toggle('active', btn.dataset.docId === id);
+        });
+
+        // Open the group and sync aria-expanded
+        const groupEl = document.querySelector(
+          `.sidebar-group[data-group="${doc.group}"]`,
+        );
+        if (groupEl && !groupEl.classList.contains('open')) {
+          groupEl.classList.add('open');
+          const groupHeader = groupEl.querySelector('.sidebar-group-header');
+          if (groupHeader) groupHeader.setAttribute('aria-expanded', 'true');
+        }
+
+        // Scroll to top
+        document.getElementById('main').scrollTop = 0;
+      }
+
+      function showWelcome() {
+        currentDocId = null;
+        document.getElementById('welcome').style.display = 'block';
+        document.getElementById('doc-view').style.display = 'none';
+        document
+          .querySelectorAll('.sidebar-item')
+          .forEach((btn) => btn.classList.remove('active'));
+      }
+
+      // ─── SEARCH ──────────────────────────────────────────────────
+      const searchInput = document.getElementById('search-input');
+      const searchClear = document.getElementById('search-clear');
+      const searchResultsEl = document.getElementById('search-results');
+
+      searchInput.addEventListener('input', () => {
+        searchQuery = searchInput.value.trim().toLowerCase();
+        searchClear.style.display = searchQuery ? 'block' : 'none';
+
+        if (!searchQuery) {
+          searchResultsEl.classList.remove('active');
+          searchResultsEl.innerHTML = '';
+          searchInput.setAttribute('aria-expanded', 'false');
+          // Restore all sidebar items
+          document
+            .querySelectorAll('.sidebar-item')
+            .forEach((btn) => btn.classList.remove('hidden'));
+          document
+            .querySelectorAll('.sidebar-group')
+            .forEach((g) => (g.style.display = ''));
+          return;
+        }
+
+        // Filter sidebar items
+        let anyVisible = false;
+        GROUPS.forEach((group) => {
+          const docs = DOCS.filter((d) => d.group === group.name);
+          const groupEl = document.querySelector(
+            `.sidebar-group[data-group="${group.name}"]`,
+          );
+          let groupVisible = false;
+          docs.forEach((doc) => {
+            const btn = groupEl
+              ? groupEl.querySelector(`[data-doc-id="${doc.id}"]`)
+              : null;
+            const matches =
+              doc.title.toLowerCase().includes(searchQuery) ||
+              doc.content.toLowerCase().includes(searchQuery);
+            if (btn) btn.classList.toggle('hidden', !matches);
+            if (matches) {
+              groupVisible = true;
+              anyVisible = true;
+            }
+          });
+          if (groupEl) {
+            groupEl.style.display = groupVisible ? '' : 'none';
+            if (groupVisible) groupEl.classList.add('open');
+          }
+        });
+
+        // Show results panel
+        const results = DOCS.filter(
+          (d) =>
+            d.title.toLowerCase().includes(searchQuery) ||
+            d.content.toLowerCase().includes(searchQuery),
+        );
+
+        if (results.length === 0) {
+          searchResultsEl.innerHTML =
+            '<div class="search-no-results">No results found for "' +
+            escResultHtml(searchQuery) +
+            '"</div>';
+        } else {
+          searchResultsEl.innerHTML = results
+            .map(
+              (d) =>
+                `<div class="search-result-item" role="option" tabindex="-1" data-doc-id="${escResultHtml(d.id)}">
+        <span class="search-result-badge">${escResultHtml(d.group)}</span>
+        <span class="search-result-title">${escResultHtml(d.title)}</span>
+      </div>`,
+            )
+            .join('');
+        }
+        searchResultsEl.classList.add('active');
+        searchInput.setAttribute('aria-expanded', 'true');
+      });
+
+      function escResultHtml(s) {
+        return s
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;');
+      }
+
+      function clearSearch() {
+        searchInput.value = '';
+        searchQuery = '';
+        searchClear.style.display = 'none';
+        searchResultsEl.classList.remove('active');
+        searchResultsEl.innerHTML = '';
+        searchInput.setAttribute('aria-expanded', 'false');
+        document
+          .querySelectorAll('.sidebar-item')
+          .forEach((btn) => btn.classList.remove('hidden'));
+        document
+          .querySelectorAll('.sidebar-group')
+          .forEach((g) => (g.style.display = ''));
+      }
+
+      searchClear.addEventListener('click', () => {
+        clearSearch();
+        searchInput.focus();
+      });
+
+      // Search results: click delegation
+      searchResultsEl.addEventListener('click', (e) => {
+        const item = e.target.closest('.search-result-item');
+        if (item && item.dataset.docId) {
+          loadDoc(item.dataset.docId);
+          clearSearch();
+        }
+      });
+
+      // Search keyboard navigation — ArrowDown from input enters results list
+      searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          clearSearch();
+          searchInput.blur();
+          return;
+        }
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          const first = searchResultsEl.querySelector('.search-result-item');
+          if (first) first.focus();
+        }
+      });
+
+      // Search results: ArrowUp/Down/Enter/Escape keyboard navigation
+      searchResultsEl.addEventListener('keydown', (e) => {
+        const items = Array.from(searchResultsEl.querySelectorAll('.search-result-item'));
+        const idx = items.indexOf(document.activeElement);
+
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          const next = items[idx + 1];
+          if (next) next.focus();
+          return;
+        }
+        if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          if (idx <= 0) {
+            searchInput.focus();
+          } else {
+            items[idx - 1].focus();
+          }
+          return;
+        }
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          const active = document.activeElement;
+          if (active && active.dataset.docId) {
+            loadDoc(active.dataset.docId);
+            clearSearch();
+          }
+          return;
+        }
+        if (e.key === 'Escape') {
+          clearSearch();
+          searchInput.focus();
+        }
+      });
+
+      // Close search results on outside click
+      document.addEventListener('click', (e) => {
+        if (
+          !e.target.closest('#search-wrap') &&
+          !e.target.closest('#search-results')
+        ) {
+          searchResultsEl.classList.remove('active');
+          searchInput.setAttribute('aria-expanded', 'false');
+        }
+      });
+
+      // ─── MOBILE SIDEBAR ──────────────────────────────────────────
+      const hamburger = document.getElementById('hamburger');
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+
+      hamburger.addEventListener('click', () => {
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('open');
+      });
+
+      overlay.addEventListener('click', closeMobileSidebar);
+
+      function closeMobileSidebar() {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('open');
+      }
+
+      // ─── URL ROUTING ─────────────────────────────────────────────
+      function loadDocFromUrl() {
+        const params = new URLSearchParams(location.search);
+        const docId = params.get('doc');
+        if (docId && DOCS.find((d) => d.id === docId)) {
+          loadDoc(docId);
+        }
+      }
+
+      const _origLoadDoc = loadDoc;
+      loadDoc = function (id) {
+        _origLoadDoc(id);
+        const url = new URL(location.href);
+        url.searchParams.set('doc', id);
+        history.pushState({ doc: id }, '', url.toString());
+      };
+
+      const _origShowWelcome = showWelcome;
+      showWelcome = function () {
+        _origShowWelcome();
+        const url = new URL(location.href);
+        url.searchParams.delete('doc');
+        history.pushState({}, '', url.toString());
+      };
+
+      window.addEventListener('popstate', () => {
+        const params = new URLSearchParams(location.search);
+        const docId = params.get('doc');
+        if (docId && DOCS.find((d) => d.id === docId)) {
+          _origLoadDoc(docId);
+        } else {
+          _origShowWelcome();
+        }
+      });
+
+      // ─── INIT ────────────────────────────────────────────────────
+      buildSidebar();
+      buildWelcome();
+      loadDocFromUrl();
+    </script>
+  </body>
+</html>
